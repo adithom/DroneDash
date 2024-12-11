@@ -10,9 +10,11 @@ if __name__ == "__main__":
     output_dir = "output/"
 
     # Load environment point cloud from STL file
-    print("Loading environment point cloud from STL...")
-    stl_file = "data/office.stl"  # Path to your STL file
-    kd_tree = load_kdtree_from_stl(stl_file)
+    print("Loading environment point cloud")
+    #stl_file = "data/office.stl"  # Path to your STL file
+    pcd = o3d.io.read_point_cloud(file_path)
+    point_cloud = np.asarray(pcd.points)
+    kd_tree = cKDTree(point_cloud)
 
     # Load reference trajectory
     print("Loading reference trajectory...")
