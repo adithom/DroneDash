@@ -30,8 +30,7 @@ def propose_control_points(current_control_points, std_dev):
         proposed[cp_idx] = [x_new, y_new, z_new]
     return proposed
 
-def metropolis_hastings_chain(ref_positions, kd_tree, lambda_c=1000, Q=np.eye(3),
-                              n_samples=50000, rand_theta_std=[2,5,10], initial_control_points=None):
+def metropolis_hastings_chain(ref_positions, ref_velocities, kd_tree, lambda_c=1000, Q=np.eye(6), n_samples=50000, rand_theta_std=[2,5,10], initial_control_points=None):
     # Initial guess
     if initial_control_points is None:
         N = len(ref_positions)
@@ -43,8 +42,8 @@ def metropolis_hastings_chain(ref_positions, kd_tree, lambda_c=1000, Q=np.eye(3)
         current_control_points = initial_control_points.copy()
 
     # Initial cost
-    _, pos_samples = generate_bspline_trajectory(current_control_points)
-    current_cost = compute_trajectory_cost(pos_samples, ref_positions, kd_tree, lambda_c, Q)
+    _, pos_samples, vel_samples = generate_bspline_trajectory(current_control_points)
+    current_cost = compute_trajectory_cost(pos_samples, vel_samples, ref_positions, ref_velocities, kd_tree, lambda_c, Q)
     current_score = np.exp(-current_cost)
 
     accepted_samples = [(current_cost, current_control_points.copy())]
@@ -62,13 +61,13 @@ def metropolis_hastings_chain(ref_positions, kd_tree, lambda_c=1000, Q=np.eye(3)
         proposed_control_points = propose_control_points(current_control_points, std_dev)
 
         # Early collision avoidance: check if proposed points or quick trajectory check is invalid
-        # Quickly generate trajectory and check collision before full cost computation
-        _, pos_samples_p = generate_bspline_trajectory(proposed_control_points)
+        # Generate trajectory and check collision before full cost computation
+        _, pos_samples_p, vel_samples_p = generate_bspline_trajectory(proposed_control_points)
         if quick_collision_check(pos_samples_p, kd_tree):
             # Reject immediately
             continue
 
-        candidate_cost = compute_trajectory_cost(pos_samples_p, ref_positions, kd_tree, lambda_c, Q)
+        candidate_cost = compute_trajectory_cost(pos_samples_p, vel_samples_p, ref_positions, ref_velocities, kd_tree, lambda_c, Q)
         candidate_score = np.exp(-candidate_cost)
 
         alpha = min(1.0, candidate_score/current_score)
@@ -80,11 +79,13 @@ def metropolis_hastings_chain(ref_positions, kd_tree, lambda_c=1000, Q=np.eye(3)
     accepted_samples.sort(key=lambda x: x[0])
     return accepted_samples
 
-def run_parallel_chains(ref_positions, kd_tree, lambda_c=1000, Q=np.eye(3), n_samples=50000, n_chains=4):
+def run_parallel_chains(ref_positions, ref_velocities, kd_tree,
+                        lambda_c=1000, Q=np.eye(6), 
+                        n_samples=50000, n_chains=4):
     # Parallelize using multiprocessing or joblib
     from joblib import Parallel, delayed
     results = Parallel(n_jobs=n_chains)(
-        delayed(metropolis_hastings_chain)(ref_positions, kd_tree, lambda_c, Q, n_samples)
+        delayed(metropolis_hastings_chain)(ref_positions, ref_velocities, kd_tree, lambda_c, Q, n_samples)
         for _ in range(n_chains)
     )
     # Combine results

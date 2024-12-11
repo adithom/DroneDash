@@ -41,13 +41,3 @@ def spherical_to_cartesian(r, theta, phi):
     y = r * np.sin(theta) * np.sin(phi)
     z = r * np.cos(theta)
     return np.array([x, y, z])
-
-def generate_b_spline(control_points, num_points=10):
-    """
-    Generate a cubic B-spline from control points.
-    """
-    t = np.linspace(0, 1, num_points)
-    degree = 3
-    knots = np.concatenate(([0] * (degree + 1), np.linspace(0, 1, len(control_points) - degree), [1] * (degree + 1)))
-    spline = BSpline(knots, control_points, degree)
-    return spline(t)

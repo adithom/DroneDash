@@ -1,0 +1,4 @@
+the current implementation utilizes a 6 dimensional state matrix to represent the drone
+this deviates from the 13D representation in the paper and done to simplifiy the proof of concept
+#todo: add acceleration and drone attitude to the state matrix
+#todo: figure out to get the acceleration from the ellipsoid planner
