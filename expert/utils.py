@@ -3,36 +3,36 @@ import numpy as np
 from scipy.interpolate import BSpline
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from stl import mesh
+#from stl import mesh
 from scipy.spatial import cKDTree
 from sklearn.utils import shuffle
 
-def load_kdtree_from_stl(file_path, downsample_rate=None):
-    """
-    Loads a KD-tree from an STL file by extracting the vertices of the mesh and optionally downsampling.
+# def load_kdtree_from_stl(file_path, downsample_rate=None):
+#     """
+#     Loads a KD-tree from an STL file by extracting the vertices of the mesh and optionally downsampling.
     
-    Parameters:
-        file_path (str): Path to the STL file.
-        downsample_rate (float): Fraction of points to retain for downsampling (e.g., 0.1 for 10%).
+#     Parameters:
+#         file_path (str): Path to the STL file.
+#         downsample_rate (float): Fraction of points to retain for downsampling (e.g., 0.1 for 10%).
     
-    Returns:
-        cKDTree: A KD-tree constructed from the processed vertices of the STL mesh.
-    """
-    # Load the STL file
-    stl_mesh = mesh.Mesh.from_file(file_path)
+#     Returns:
+#         cKDTree: A KD-tree constructed from the processed vertices of the STL mesh.
+#     """
+#     # Load the STL file
+#     stl_mesh = mesh.Mesh.from_file(file_path)
     
-    # Extract unique vertices
-    vertices = np.vstack((stl_mesh.v0, stl_mesh.v1, stl_mesh.v2))
-    unique_vertices = np.unique(vertices, axis=0)
+#     # Extract unique vertices
+#     vertices = np.vstack((stl_mesh.v0, stl_mesh.v1, stl_mesh.v2))
+#     unique_vertices = np.unique(vertices, axis=0)
     
-    # Downsample if required
-    if downsample_rate is not None and 0 < downsample_rate < 1:
-        unique_vertices = shuffle(unique_vertices, random_state=42)[:int(downsample_rate * len(unique_vertices))]
+#     # Downsample if required
+#     if downsample_rate is not None and 0 < downsample_rate < 1:
+#         unique_vertices = shuffle(unique_vertices, random_state=42)[:int(downsample_rate * len(unique_vertices))]
     
-    # Build a KD-tree from the unique (and possibly downsampled) vertices
-    kd_tree = cKDTree(unique_vertices)
+#     # Build a KD-tree from the unique (and possibly downsampled) vertices
+#     kd_tree = cKDTree(unique_vertices)
     
-    return kd_tree
+#     return kd_tree
 
 
 def visualize_trajectories(trajectories, ref_positions, velocities=None):
@@ -73,7 +73,7 @@ def generate_bspline_trajectory(control_points, total_time=1.0, dt=0.1):
     Generate a cubic B-spline trajectory, including positions, velocities, and accelerations.
 
     Parameters:
-        control_points: (3,3) array of control points (3D).
+        control_points: (4,3) array of control points (3D).
         total_time: Total time of the trajectory (default: 1.0 seconds).
         dt: Time step for discretization.
 
@@ -83,7 +83,7 @@ def generate_bspline_trajectory(control_points, total_time=1.0, dt=0.1):
         velocities: Nx3 array of velocities along the trajectory.
         accelerations: Nx3 array of accelerations along the trajectory.
     """
-    knots = [0, 0, 0, 1, 1, 1]  # Clamped knot vector for cubic B-spline
+    knots = [0, 0, 0, 0, 1, 1, 1, 1]  # Clamped knot vector for cubic B-spline
     control_points = np.array(control_points)
     t = np.arange(0, total_time + dt, dt)
     t_normalized = t / total_time
