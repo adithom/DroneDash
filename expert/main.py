@@ -24,14 +24,14 @@ if __name__ == "__main__":
 
     # Define state cost matrix Q (position and velocity weights)
     Q = np.zeros((6, 6))
-    Q[:3, :3] = np.eye(3) * 1.0  # Position weights
-    Q[3:, 3:] = np.eye(3) * 0.5  # Velocity weights
+    Q[:3, :3] = np.eye(3) * 0.8  # Position weights
+    Q[3:, 3:] = np.eye(3) * 0.3  # Velocity weights
 
     # Prepare to save results for each 0.1 s interval
     all_samples = []
 
     # Open CSV for writing structured output
-    # Updated header for four control points: cp1x, cp1y, cp1z, cp2x, cp2y, cp2z, cp3x, cp3y, cp3z, cp4x, cp4y, cp4z
+    # header for four control points: cp1x, cp1y, cp1z, cp2x, cp2y, cp2z, cp3x, cp3y, cp3z, cp4x, cp4y, cp4z
     print("Saving samples for each point...")
     with open(f"{output_dir}samples_by_time.csv", "w", newline='') as f:
         writer = csv.writer(f)

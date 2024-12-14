@@ -2,7 +2,6 @@ import open3d as o3d
 import logging
 import sys
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -12,7 +11,6 @@ logging.basicConfig(
 )
 
 def main():
-    # File paths
     stl_file = "office.stl"
     ply_file = "office.ply"
     pointcloud_file = "office_pointcloud.ply"
